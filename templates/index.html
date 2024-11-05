@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../static/bootstrap-5.3.3-dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../static/fontawesome-free-6.6.0-web/css/all.css">
+    <title>Todo List</title>
+</head>
+
+<body class="bg-white">
+    <header class="container-fluid bg-primary shadow-sm py-4 px-5 d-flex justify-content-between align-items-center">
+        <div class="logo">
+            <small class="text-white fw-bold">TODO LIST</small>
+        </div>
+        <div class="user text-white">
+            <a href="{% url 'logout' %}" class="nav-link">Logout</a>
+        </div>
+    </header>
+<div class="add-todo d-lg-none d-sm-block" style="position: fixed; left: 62%; top: 85%">
+           <a href="{% url 'add-todo' %}">
+            <button class="btn btn-primary rounded-5 px-lg-5 p-2 px-3 shadow-sm" title="Add a To do">
+            + Add To do
+        </button>
+        </a>
+    </div>
+   <div class="add-todo d-none d-lg-block" style="position: fixed; left: 80%; top: 85%">
+           <a href="{% url 'add-todo' %}">
+            <button class="btn btn-primary rounded-5 px-lg-5 p-2 px-3 shadow-sm" title="Add a To do">
+            + Add To do
+        </button>
+        </a>
+    </div>
+    <div class="container bg-white  rounded mt-2 pb-5">
+        {% if todolist %}
+            {% for todo in todolist %}
+                <div class="d-flex border-bottom py-3 justify-content-between align-items-center">
+                    <div class="d-flex align-items-center">
+                        <input type="checkbox" class="check-todo me-2" data-id="{{ todo.id }}" {% if todo.completed %}checked{% endif %}>
+                        <small id="todo-{{ todo.id }}" class="todo-text {% if todo.completed %}text-decoration-line-through{% endif %}">
+                            {{ todo }}
+                        </small>
+                    </div>
+                    <div>
+                        <form action="{% url 'delete-todo' todo.pk %}" method="post">
+                            {% csrf_token %}
+                            <button type="submit" class="btn" title="Delete">
+                                <i class="fa fa-trash text-danger"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p class="text-center">No To do available</p>
+        {% endif %}
+    </div>
+
+    <script>
+        document.querySelectorAll('.check-todo').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const todoId = this.dataset.id;
+                const todoText = document.getElementById(`todo-${todoId}`);
+
+                fetch(`/toggle-todo/${todoId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}',
+                        'Content-Type': 'application/json',
+                    },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        if (data.completed) {
+                            todoText.classList.add('text-decoration-line-through');
+                        } else {
+                            todoText.classList.remove('text-decoration-line-through');
+                        }
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            });
+        });
+    </script>
+
+    <script src="../static/fontawesome-free-6.6.0-web/js/all.js"></script>
+</body>
+</html>

@@ -2,7 +2,7 @@
   "version": 2,
   "builds": [
     {
-      "src": "manage.py",
+      "src": "todo_app/wsgi.py",  // Adjust the path to `wsgi.py` based on your project structure
       "use": "@vercel/python",
       "config": {
         "maxLambdaSize": "50mb"
@@ -12,7 +12,7 @@
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "/manage.py"
+      "dest": "todo_app/wsgi.py"  // Make sure this path points to your `wsgi.py` file
     }
   ]
 }
